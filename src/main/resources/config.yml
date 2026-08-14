@@ -1,0 +1,15 @@
+mcp:
+  port: 8080
+  stdio-enabled: true
+  http-enabled: true
+  auth:
+    enabled: true
+    token: "changeme-in-production"
+    env-var: "MCP_AUTH_TOKEN"
+fawe:
+  max-blocks-per-op: 50000
+  require-selection: true
+  async: true
+server:
+  restart-delay: 5
+  stop-delay: 3
