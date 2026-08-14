@@ -55,8 +55,8 @@ object ConfigLoader {
                 httpEnabled = mcp.getBoolean("http-enabled", true),
                 auth = AuthConfig(
                     enabled = mcp.getBoolean("auth.enabled", true),
-                    token = mcp.getString("auth.token", "changeme-in-production"),
-                    envVar = mcp.getString("auth.env-var", "MCP_AUTH_TOKEN")
+                    token = mcp.getString("auth.token") ?: "changeme-in-production",
+                    envVar = mcp.getString("auth.env-var") ?: "MCP_AUTH_TOKEN"
                 )
             ),
             fawe = FaweConfig(

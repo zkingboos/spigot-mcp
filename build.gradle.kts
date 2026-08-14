@@ -19,7 +19,7 @@ dependencies {
     testImplementation(kotlin("test"))
 
     // MCP Server
-    implementation("io.modelcontextprotocol:mcp:0.6.0")
+    implementation("io.modelcontextprotocol:kotlin-sdk:0.9.0")
     implementation("io.netty:netty-transport-native-epoll:4.1.100.Final")
     implementation("io.netty:netty-codec-http:4.1.100.Final")
     implementation("io.netty:netty-handler:4.1.100.Final")
