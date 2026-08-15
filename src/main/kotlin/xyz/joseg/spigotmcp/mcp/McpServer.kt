@@ -12,6 +12,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.time.Duration
+import xyz.joseg.spigotmcp.mcp.tools.ToolRegistry
+import xyz.joseg.spigotmcp.mcp.tools.block.*
+import xyz.joseg.spigotmcp.mcp.tools.clipboard.*
+import xyz.joseg.spigotmcp.mcp.tools.selection.*
+import xyz.joseg.spigotmcp.mcp.tools.server.*
 
 class McpServerHost(
     private val config: xyz.joseg.spigotmcp.config.PluginConfig,
@@ -59,7 +64,36 @@ class McpServerHost(
     }
     
     private fun registerTools(spec: io.modelcontextprotocol.server.McpServer.AsyncSpecification<*>) {
-        // TODO: Register FAWE tools
+        val registry = ToolRegistry(spec.build())
+        
+        // Block operation tools
+        registry.registerAll(
+            createSetBlocksTool(faweAdapter),
+            createReplaceBlocksTool(faweAdapter),
+            createWallsTool(faweAdapter),
+            createSphereTool(faweAdapter),
+            createCylinderTool(faweAdapter)
+        )
+        
+        // Clipboard tools
+        registry.registerAll(
+            createCopyTool(faweAdapter),
+            createPasteTool(faweAdapter),
+            createClearClipboardTool(faweAdapter)
+        )
+        
+        // Selection tools
+        registry.registerAll(
+            createGetSelectionTool(),
+            createSetSelectionTool()
+        )
+        
+        // Server management tools
+        registry.registerAll(
+            createRestartServerTool(config.server),
+            createStopServerTool(config.server),
+            createServerStatusTool()
+        )
     }
     
     private fun startHttpServer() {
