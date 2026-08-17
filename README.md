@@ -74,6 +74,56 @@ docker-compose up -d
 
 Runs a Spigot 1.21.4 server with FAWE and the plugin pre-loaded (data in `./spigot-data`).
 
+## Connecting AI Clients
+
+The plugin runs inside the Spigot server, so AI clients connect over HTTP to `http://<server-ip>:8080/` (or via SSE at `/sse`). If authentication is enabled, pass the token as a Bearer header.
+
+### Claude Code
+
+```bash
+claude mcp add spigot-mcp --transport http http://localhost:8080/ \
+  --header "Authorization: Bearer MCP_AUTH_TOKEN"
+```
+
+Or in `~/.claude.json`:
+
+```json
+{
+  "mcpServers": {
+    "spigot-mcp": {
+      "type": "http",
+      "url": "http://localhost:8080/",
+      "headers": { "Authorization": "Bearer MCP_AUTH_TOKEN" }
+    }
+  }
+}
+```
+
+### Codex
+
+```bash
+codex mcp add spigot-mcp --url http://localhost:8080/ \
+  --header "Authorization: Bearer MCP_AUTH_TOKEN"
+```
+
+### OpenCode
+
+Add to `opencode.json`:
+
+```json
+{
+  "mcp": {
+    "spigot-mcp": {
+      "type": "http",
+      "url": "http://localhost:8080/",
+      "headers": { "Authorization": "Bearer MCP_AUTH_TOKEN" }
+    }
+  }
+}
+```
+
+Once connected, the agent can call tools like `set_blocks`, `batch_blocks`, `sphere`, or `get_player_position` directly.
+
 ## Testing
 
 ```bash
