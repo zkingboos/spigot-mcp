@@ -11,6 +11,7 @@ data class PluginConfig(
 
 data class McpConfig(
     val port: Int = 8080,
+    val bindAddress: String = "0.0.0.0",
     val stdioEnabled: Boolean = true,
     val httpEnabled: Boolean = true,
     val auth: AuthConfig = AuthConfig()
@@ -51,6 +52,7 @@ object ConfigLoader {
         return PluginConfig(
             mcp = McpConfig(
                 port = mcp.getInt("port", 8080),
+                bindAddress = mcp.getString("bind-address") ?: "0.0.0.0",
                 stdioEnabled = mcp.getBoolean("stdio-enabled", true),
                 httpEnabled = mcp.getBoolean("http-enabled", true),
                 auth = AuthConfig(

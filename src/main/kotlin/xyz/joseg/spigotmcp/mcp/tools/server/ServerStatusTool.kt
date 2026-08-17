@@ -1,8 +1,10 @@
 package xyz.joseg.spigotmcp.mcp.tools.server
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.modelcontextprotocol.spec.McpSchema
 import xyz.joseg.spigotmcp.mcp.tools.ToolDefinition
-import kotlinx.serialization.json.Json
+
+private val jacksonMapper = ObjectMapper().apply { findAndRegisterModules() }
 
 data class ServerStatusOutput(
     val onlinePlayers: Int,
@@ -34,7 +36,7 @@ fun createServerStatusTool(): ToolDefinition {
             version = org.bukkit.Bukkit.getVersion()
         )
         
-        val json = Json.encodeToString(status)
+        val json = jacksonMapper.writeValueAsString(status)
         McpSchema.CallToolResult(
             listOf(McpSchema.TextContent(json)),
             false

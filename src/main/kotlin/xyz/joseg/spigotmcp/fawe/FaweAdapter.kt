@@ -50,7 +50,7 @@ class FaweAdapter(private val config: FaweConfig) {
         val blocks = selRegion.getArea()
         require(blocks <= config.maxBlocksPerOp) { "Region too large: $blocks > ${config.maxBlocksPerOp}" }
         
-        session.setBlocks(selRegion as Region, pattern as Pattern)
+        session.setBlocks(selRegion as Region, pattern)
         session.flushQueue()
         return blocks
     }
@@ -66,7 +66,7 @@ class FaweAdapter(private val config: FaweConfig) {
         
         val fromPattern = parsePattern(fromMaterial)
         val toPattern = parsePattern(toMaterial)
-        val fromBlockType = BlockTypes.get(fromMaterial.uppercase())
+        val fromBlockType = BlockTypes.get(fromMaterial)
             ?: throw IllegalArgumentException("Unknown material: $fromMaterial")
         val mask = BlockTypeMask(session.getWorld(), fromBlockType)
         
@@ -110,7 +110,7 @@ class FaweAdapter(private val config: FaweConfig) {
         val blocks = sphereRegion.getArea()
         require(blocks <= config.maxBlocksPerOp) { "Region too large: $blocks > ${config.maxBlocksPerOp}" }
         
-        session.setBlocks(sphereRegion as Region, pattern as Pattern)
+        session.setBlocks(sphereRegion as Region, pattern)
         session.flushQueue()
         return blocks
     }
@@ -131,7 +131,7 @@ class FaweAdapter(private val config: FaweConfig) {
         val blocks = cylinderRegion.getArea()
         require(blocks <= config.maxBlocksPerOp) { "Region too large: $blocks > ${config.maxBlocksPerOp}" }
         
-        session.setBlocks(cylinderRegion as Region, pattern as Pattern)
+        session.setBlocks(cylinderRegion as Region, pattern)
         session.flushQueue()
         return blocks
     }
@@ -185,7 +185,7 @@ class FaweAdapter(private val config: FaweConfig) {
         return Result.success(Unit)
     }
 
-    private fun createSession(worldName: String): EditSession {
+    fun createSession(worldName: String): EditSession {
         val world = BukkitAdapter.adapt(getBukkitWorld(worldName))
         val session = worldEdit.newEditSessionBuilder()
             .world(world)
@@ -193,7 +193,7 @@ class FaweAdapter(private val config: FaweConfig) {
         return session
     }
 
-    private fun getBukkitWorld(worldName: String): World {
+    fun getBukkitWorld(worldName: String): World {
         return org.bukkit.Bukkit.getWorld(worldName) 
             ?: throw IllegalArgumentException("World not found: $worldName")
     }
@@ -214,9 +214,14 @@ class FaweAdapter(private val config: FaweConfig) {
         }
     }
 
-    private fun parsePattern(material: String): Pattern {
-        val blockType = BlockTypes.get(material.uppercase()) 
+    fun parsePattern(material: String): Pattern {
+        val blockType = BlockTypes.get(material) 
             ?: throw IllegalArgumentException("Unknown material: $material")
         return BlockPattern(blockType.defaultState)
+    }
+
+    fun parseBlockStatePattern(stateString: String): Pattern {
+        val blockData = org.bukkit.Bukkit.createBlockData(stateString)
+        return BlockPattern(BukkitAdapter.adapt(blockData))
     }
 }

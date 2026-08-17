@@ -43,3 +43,9 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+### Local dev / server runtime ###
+spigot-data/
+graphify-out/
+.opencode/
+plugin.yml
