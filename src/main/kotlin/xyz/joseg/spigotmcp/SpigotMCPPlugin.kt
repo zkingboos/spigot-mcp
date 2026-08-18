@@ -4,6 +4,7 @@ import org.bukkit.plugin.java.JavaPlugin
 import xyz.joseg.spigotmcp.config.ConfigLoader
 import xyz.joseg.spigotmcp.config.PluginConfig
 import xyz.joseg.spigotmcp.mcp.McpServerHost
+import xyz.joseg.spigotmcp.worldedit.MainThreadDispatcher
 import xyz.joseg.spigotmcp.worldedit.WorldEditBackends
 import xyz.joseg.spigotmcp.worldedit.WorldEditService
 
@@ -24,7 +25,7 @@ class SpigotMCPPlugin : JavaPlugin() {
         pluginConfig = ConfigLoader.load(dataFolder)
 
         worldEdit = WorldEditBackends.detect(pluginConfig.worldEdit, logger)
-            ?.let { WorldEditService(it, pluginConfig.worldEdit) }
+            ?.let { WorldEditService(it, pluginConfig.worldEdit, MainThreadDispatcher(this)) }
 
         mcpServer = McpServerHost(pluginConfig, worldEdit, logger)
         mcpServer.start()

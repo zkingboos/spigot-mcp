@@ -14,51 +14,63 @@ data class BlockPlacementRequest(
 
 class WorldEditService(
     private val backend: WorldEditBackend,
-    private val config: WorldEditConfig
+    private val config: WorldEditConfig,
+    private val mainThread: MainThreadDispatcher
 ) {
     val backendName: String get() = backend.descriptor.displayName
 
     fun setBlocks(pos1: Pos, pos2: Pos, material: String): Result<Int> = runCatching {
-        backend.setBlocks(region(pos1, pos2), block(material))
+        val region = region(pos1, pos2)
+        val block = block(material)
+        mainThread.call { backend.setBlocks(region, block) }
     }
 
     fun replaceBlocks(pos1: Pos, pos2: Pos, from: String, to: String): Result<Int> = runCatching {
-        backend.replaceBlocks(region(pos1, pos2), block(from), block(to))
+        val region = region(pos1, pos2)
+        val source = block(from)
+        val target = block(to)
+        mainThread.call { backend.replaceBlocks(region, source, target) }
     }
 
     fun walls(pos1: Pos, pos2: Pos, material: String): Result<Int> = runCatching {
-        backend.makeWalls(region(pos1, pos2), block(material))
+        val region = region(pos1, pos2)
+        val block = block(material)
+        mainThread.call { backend.makeWalls(region, block) }
     }
 
     fun sphere(center: Pos, radius: Int, material: String): Result<Int> = runCatching {
         require(radius > 0) { "Radius must be positive (got $radius)" }
         enforceLimit(sphereVolume(radius), "Sphere")
-        backend.makeSphere(center, radius, block(material))
+        val block = block(material)
+        mainThread.call { backend.makeSphere(center, radius, block) }
     }
 
     fun cylinder(center: Pos, radius: Int, height: Int, material: String): Result<Int> = runCatching {
         require(radius > 0) { "Radius must be positive (got $radius)" }
         require(height > 0) { "Height must be positive (got $height)" }
         enforceLimit(cylinderVolume(radius, height), "Cylinder")
-        backend.makeCylinder(center, radius, height, block(material))
+        val block = block(material)
+        mainThread.call { backend.makeCylinder(center, radius, height, block) }
     }
 
     fun placeBlocks(requests: List<BlockPlacementRequest>): Result<Int> = runCatching {
         require(requests.isNotEmpty()) { "Blocks list cannot be empty" }
         val placements = requests.flatMap(::plan)
         enforceLimit(placements.size.toLong(), "Batch")
-        backend.placeBlocks(placements)
+        mainThread.call { backend.placeBlocks(placements) }
     }
 
     fun copy(pos1: Pos, pos2: Pos): Result<Unit> = runCatching {
-        backend.copy(region(pos1, pos2))
+        val region = region(pos1, pos2)
+        mainThread.call { backend.copy(region) }
     }
 
     fun paste(origin: Pos, rotationDegrees: Int = 0): Result<Int> = runCatching {
         val volume = backend.clipboardVolume
         check(volume > 0) { "Clipboard is empty" }
         enforceLimit(volume, "Clipboard")
-        backend.paste(origin, normaliseRotation(rotationDegrees))
+        val rotation = normaliseRotation(rotationDegrees)
+        mainThread.call { backend.paste(origin, rotation) }
     }
 
     fun clearClipboard(): Result<Unit> = runCatching { backend.clearClipboard() }
