@@ -111,7 +111,7 @@ data class JsonRpcNotification(
 
 class McpServerHost(
     private val config: xyz.joseg.spigotmcp.config.PluginConfig,
-    private val faweAdapter: xyz.joseg.spigotmcp.fawe.FaweAdapter?,
+    private val worldEdit: xyz.joseg.spigotmcp.worldedit.WorldEditService?,
     private val logger: java.util.logging.Logger
 ) {
     private val scope = CoroutineScope(Dispatchers.IO + Job())
@@ -230,60 +230,33 @@ class McpServerHost(
         
         spec.serverInfo(McpSchema.Implementation("spigot-mcp", "1.0.0"))
             .capabilities(capabilities)
-            .instructions("MCP Server for Spigot with FAWE integration")
+            .instructions("MCP Server for Spigot with WorldEdit/FAWE integration")
             .jsonMapper(jsonMapper)
     }
     
     private fun registerToolsOnServer(server: McpAsyncServer) {
-        // Register tools directly on the server instance
-        // Block operation tools (require FAWE)
-        faweAdapter?.let { adapter ->
-            val tools = listOf(
-                createSetBlocksTool(adapter),
-                createReplaceBlocksTool(adapter),
-                createWallsTool(adapter),
-                createSphereTool(adapter),
-                createCylinderTool(adapter),
-                createBatchBlocksTool(adapter)
-            )
-            registeredTools.addAll(tools)
-            tools.forEach { server.addTool(it.toAsyncTool()).block() }
+        val tools = buildList {
+            worldEdit?.let { backend ->
+                add(createSetBlocksTool(backend))
+                add(createReplaceBlocksTool(backend))
+                add(createWallsTool(backend))
+                add(createSphereTool(backend))
+                add(createCylinderTool(backend))
+                add(createBatchBlocksTool(backend))
+                add(createCopyTool(backend))
+                add(createPasteTool(backend))
+                add(createClearClipboardTool(backend))
+            }
+            add(createGetSelectionTool())
+            add(createSetSelectionTool())
+            add(createRestartServerTool(config.server))
+            add(createStopServerTool(config.server))
+            add(createServerStatusTool())
+            add(createGetPlayerPositionTool())
         }
-        
-        // Clipboard tools (require FAWE)
-        faweAdapter?.let { adapter ->
-            val tools = listOf(
-                createCopyTool(adapter),
-                createPasteTool(adapter),
-                createClearClipboardTool(adapter)
-            )
-            registeredTools.addAll(tools)
-            tools.forEach { server.addTool(it.toAsyncTool()).block() }
-        }
-        
-        // Selection tools (no FAWE required)
-        val selectionTools = listOf(
-            createGetSelectionTool(),
-            createSetSelectionTool()
-        )
-        registeredTools.addAll(selectionTools)
-        selectionTools.forEach { server.addTool(it.toAsyncTool()).block() }
-        
-        // Server management tools (no FAWE required)
-        val serverTools = listOf(
-            createRestartServerTool(config.server),
-            createStopServerTool(config.server),
-            createServerStatusTool()
-        )
-        registeredTools.addAll(serverTools)
-        serverTools.forEach { server.addTool(it.toAsyncTool()).block() }
-        
-        // Player tools (no FAWE required)
-        val playerTools = listOf(
-            createGetPlayerPositionTool()
-        )
-        registeredTools.addAll(playerTools)
-        playerTools.forEach { server.addTool(it.toAsyncTool()).block() }
+
+        registeredTools.addAll(tools)
+        tools.forEach { server.addTool(it.toAsyncTool()).block() }
     }
     
     fun broadcastNotification(method: String, params: Map<String, Any>) {
