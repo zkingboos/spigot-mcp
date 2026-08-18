@@ -75,8 +75,11 @@ dependencies {
     // compiled against upstream WorldEdit 6 and accelerated by FAWE in place.
     "legacyCompileOnly"(kotlin("stdlib"))
     "legacyCompileOnly"("org.spigotmc:spigot-api:$spigotLegacy")
-    "legacyCompileOnly"("com.sk89q.worldedit:worldedit-core:$worldEditLegacy")
-    "legacyCompileOnly"("com.sk89q.worldedit:worldedit-bukkit:$worldEditLegacy")
+    // worldedit-bukkit 6.1 declares org.bukkit:bukkit:1.7.9-R0.2, which no longer exists on any
+    // reachable repository. The Bukkit API we compile against is spigot-api above, so the whole
+    // transitive graph of the legacy WorldEdit artifacts is dropped.
+    "legacyCompileOnly"("com.sk89q.worldedit:worldedit-core:$worldEditLegacy") { isTransitive = false }
+    "legacyCompileOnly"("com.sk89q.worldedit:worldedit-bukkit:$worldEditLegacy") { isTransitive = false }
 }
 
 kotlin {
