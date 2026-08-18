@@ -48,4 +48,5 @@ bin/
 spigot-data/
 graphify-out/
 .opencode/
-plugin.yml
+legacy-server/
+.env

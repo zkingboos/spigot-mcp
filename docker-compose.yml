@@ -1,9 +1,21 @@
+# Two independent test servers:
+#
+#   spigot         - MC 1.21.4 + FAWE 2.x  -> exercises the `modern` WorldEdit backend
+#   spigot-legacy  - MC 1.8.8  + WorldEdit 6 / FAWE-Reborn -> exercises the `legacy` backend
+#
+# Only `spigot` builds an image; the legacy server runs a plain JRE over ./legacy-server,
+# because its server jar (iSpigot 1_8_R3, Java 17 bytecode) is a local build and not
+# downloadable from any repository.
+#
+#   docker compose up -d spigot-legacy
+#
 services:
   spigot:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: spigot-mcp-test
+    profiles: ["modern"]
     ports:
       - "25565:25565"
       - "25575:25575"
@@ -11,5 +23,32 @@ services:
     volumes:
       - ./spigot-data:/data
     restart: unless-stopped
+    tty: true
+    stdin_open: true
+
+  spigot-legacy:
+    image: eclipse-temurin:21-jre
+    container_name: spigot-mcp-legacy
+    working_dir: /server
+    # stdin is a FIFO that is never closed: a detached container otherwise hands the
+    # Minecraft console an immediate EOF, which it reads as "stop".
+    # Console commands can then be sent with:
+    #   docker exec spigot-mcp-legacy sh -c 'echo save-all > /tmp/console'
+    command:
+      - sh
+      - -c
+      - |
+        rm -f /tmp/console && mkfifo /tmp/console
+        sleep infinity > /tmp/console &
+        exec java -Xms1G -Xmx2G           -DIReallyKnowWhatIAmDoingISwear=true           -Dcom.mojang.eula.agree=true           -jar /server/server.jar nogui < /tmp/console
+    ports:
+      - "25566:25565"   # Minecraft
+      - "8081:8080"     # MCP HTTP (POST /, GET /sse, GET /api/*)
+    volumes:
+      - ./legacy-server:/server
+      # The Minecraft save lives outside the repo. MC_WORLD_PATH is a *Windows* absolute
+      # path written with forward slashes (see .env) - Docker Desktop maps it through WSL2.
+      - "${MC_WORLD_PATH:?set MC_WORLD_PATH in .env}:/server/void-bedwars-working"
+    restart: "no"
     tty: true
     stdin_open: true

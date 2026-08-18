@@ -6,7 +6,8 @@ mcp:
     enabled: true
     token: "changeme-in-production"
     env-var: "MCP_AUTH_TOKEN"
-fawe:
+worldedit:
+  backend: "auto"
   max-blocks-per-op: 50000
   require-selection: true
   async: true
