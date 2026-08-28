@@ -1,7 +1,9 @@
 package xyz.joseg.spigotmcp.mcp.tools.selection
 
+import xyz.joseg.spigotmcp.mcp.protocol.CallToolResult
+import xyz.joseg.spigotmcp.mcp.protocol.TextContent
+
 import com.fasterxml.jackson.databind.ObjectMapper
-import io.modelcontextprotocol.spec.McpSchema
 import xyz.joseg.spigotmcp.mcp.tools.ToolDefinition
 
 private val jacksonMapper = ObjectMapper().apply { findAndRegisterModules() }
@@ -14,8 +16,8 @@ fun createGetSelectionTool(): ToolDefinition {
     ) { args ->
         // Note: Would need integration with WE selection API
         val json = jacksonMapper.writeValueAsString(mapOf("pos1" to null, "pos2" to null))
-        McpSchema.CallToolResult(
-            listOf(McpSchema.TextContent(json)),
+        CallToolResult(
+            listOf(TextContent(json)),
             false
         )
     }

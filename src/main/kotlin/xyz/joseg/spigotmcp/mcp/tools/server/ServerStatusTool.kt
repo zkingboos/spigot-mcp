@@ -1,7 +1,9 @@
 package xyz.joseg.spigotmcp.mcp.tools.server
 
+import xyz.joseg.spigotmcp.mcp.protocol.CallToolResult
+import xyz.joseg.spigotmcp.mcp.protocol.TextContent
+
 import com.fasterxml.jackson.databind.ObjectMapper
-import io.modelcontextprotocol.spec.McpSchema
 import xyz.joseg.spigotmcp.mcp.tools.ToolDefinition
 
 private val jacksonMapper = ObjectMapper().apply { findAndRegisterModules() }
@@ -37,8 +39,8 @@ fun createServerStatusTool(): ToolDefinition {
         )
         
         val json = jacksonMapper.writeValueAsString(status)
-        McpSchema.CallToolResult(
-            listOf(McpSchema.TextContent(json)),
+        CallToolResult(
+            listOf(TextContent(json)),
             false
         )
     }

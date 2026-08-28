@@ -1,24 +1,26 @@
 package xyz.joseg.spigotmcp.mcp.tools
 
-import io.modelcontextprotocol.spec.McpSchema
+import xyz.joseg.spigotmcp.mcp.protocol.CallToolResult
+import xyz.joseg.spigotmcp.mcp.protocol.TextContent
+
 import xyz.joseg.spigotmcp.util.Pos
 
 object ToolArgs {
 
-    fun success(text: String): McpSchema.CallToolResult =
-        McpSchema.CallToolResult(listOf(McpSchema.TextContent(text)), false)
+    fun success(text: String): CallToolResult =
+        CallToolResult(listOf(TextContent(text)), false)
 
-    fun failure(text: String): McpSchema.CallToolResult =
-        McpSchema.CallToolResult(listOf(McpSchema.TextContent(text)), true)
+    fun failure(text: String): CallToolResult =
+        CallToolResult(listOf(TextContent(text)), true)
 }
 
-fun <T> Result<T>.toToolResult(describe: (T) -> String): McpSchema.CallToolResult =
+fun <T> Result<T>.toToolResult(describe: (T) -> String): CallToolResult =
     fold(
         onSuccess = { ToolArgs.success(describe(it)) },
         onFailure = { ToolArgs.failure(it.message ?: it.toString()) }
     )
 
-inline fun toolResult(block: () -> McpSchema.CallToolResult): McpSchema.CallToolResult =
+inline fun toolResult(block: () -> CallToolResult): CallToolResult =
     runCatching(block).getOrElse { ToolArgs.failure(it.message ?: it.toString()) }
 
 @Suppress("UNCHECKED_CAST")

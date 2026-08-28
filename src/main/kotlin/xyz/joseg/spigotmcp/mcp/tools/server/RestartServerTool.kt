@@ -1,6 +1,8 @@
 package xyz.joseg.spigotmcp.mcp.tools.server
 
-import io.modelcontextprotocol.spec.McpSchema
+import xyz.joseg.spigotmcp.mcp.protocol.CallToolResult
+import xyz.joseg.spigotmcp.mcp.protocol.TextContent
+
 import xyz.joseg.spigotmcp.config.ServerConfig
 import xyz.joseg.spigotmcp.mcp.tools.ToolDefinition
 import org.bukkit.Bukkit
@@ -28,8 +30,8 @@ fun createRestartServerTool(config: ServerConfig): ToolDefinition {
         }
         task.runTaskLater(plugin, (delay * 20L).toLong())
         
-        McpSchema.CallToolResult(
-            listOf(McpSchema.TextContent("Server restart scheduled in $delay seconds")),
+        CallToolResult(
+            listOf(TextContent("Server restart scheduled in $delay seconds")),
             false
         )
     }
