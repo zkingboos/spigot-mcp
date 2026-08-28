@@ -9,7 +9,7 @@ mcp:
 worldedit:
   backend: "auto"
   max-blocks-per-op: 50000
-  require-selection: true
+  require-selection: true  # true = requer pos1 != pos2 (rejeita regiões de 1 bloco). false = permite 1 bloco.
   async: true
 server:
   restart-delay: 5
