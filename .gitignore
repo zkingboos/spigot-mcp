@@ -51,3 +51,4 @@ graphify-out/
 legacy-server/
 .env
 docs/VERIFICATION_LOG.md
+spigot-data-legacy/
