@@ -26,6 +26,23 @@ services:
     tty: true
     stdin_open: true
 
+  # Phase 3 proof: REAL Spigot 1.8.8 on REAL Java 8 (itzg java8 image).
+  # Exercises the `legacy` WorldEdit 6 backend with the universal Java-8 jar.
+  spigot-legacy8:
+    build:
+      context: .
+      dockerfile: Dockerfile.legacy
+    container_name: spigot-mcp-legacy8
+    profiles: ["legacy"]
+    ports:
+      - "25566:25565"   # Minecraft
+      - "8081:8080"     # MCP HTTP (POST / JSON-RPC, GET /api/*)
+    volumes:
+      - ./spigot-data-legacy:/data
+    restart: unless-stopped
+    tty: true
+    stdin_open: true
+
   spigot-legacy:
     image: eclipse-temurin:21-jre
     container_name: spigot-mcp-legacy

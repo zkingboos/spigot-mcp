@@ -1,0 +1,23 @@
+FROM itzg/minecraft-server:java8
+
+# Phase 3 proof environment: REAL Spigot 1.8.8 on a REAL Java 8 JVM.
+# If this boots and serves MCP tools, the universal-bytecode claim is proven.
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/* \
+    && mkdir -p /plugins \
+    && curl -sL -o /plugins/WorldEdit.jar 'https://mediafilez.forgecdn.net/files/2597/538/worldedit-bukkit-6.1.9.jar'
+
+# Optional acceleration (cmclient/FAWE-1.8-Reborn release). Uncomment to enable.
+RUN curl -sL -o /plugins/FastAsyncWorldEdit-Reborn.jar 'https://github.com/cmclient/FAWE-1.8-Reborn/releases/download/fawe-1.8-reborn/FastAsyncWorldEdit-Reborn-bukkit-21.03.26-5ff3a9b-1286-22.3.9.jar'
+
+COPY build/libs/spigot-mcp-1.0-SNAPSHOT.jar /plugins/spigot-mcp-1.0-SNAPSHOT.jar
+
+ENV EULA=TRUE \
+    TYPE=SPIGOT \
+    VERSION=1.8.8 \
+    MEMORY=1G \
+    ONLINE_MODE=FALSE \
+    ENABLE_RCON=TRUE \
+    RCON_PASSWORD=mcp-test \
+    RCON_PORT=25575
+
+EXPOSE 25565 25575 8080
