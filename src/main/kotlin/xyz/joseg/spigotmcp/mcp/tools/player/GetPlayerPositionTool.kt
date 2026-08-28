@@ -1,6 +1,8 @@
 package xyz.joseg.spigotmcp.mcp.tools.player
 
-import io.modelcontextprotocol.spec.McpSchema
+import xyz.joseg.spigotmcp.mcp.protocol.CallToolResult
+import xyz.joseg.spigotmcp.mcp.protocol.TextContent
+
 import xyz.joseg.spigotmcp.mcp.tools.ToolDefinition
 import xyz.joseg.spigotmcp.util.Pos
 import org.bukkit.Bukkit
@@ -24,8 +26,8 @@ fun createGetPlayerPositionTool(): ToolDefinition {
         val player = Bukkit.getPlayer(playerName) ?: Bukkit.getOfflinePlayer(playerName).player
         
         if (player == null) {
-            McpSchema.CallToolResult(
-                listOf(McpSchema.TextContent("Player not found: $playerName")),
+            CallToolResult(
+                listOf(TextContent("Player not found: $playerName")),
                 true
             )
         } else {
@@ -35,8 +37,8 @@ fun createGetPlayerPositionTool(): ToolDefinition {
                 player.location.blockZ,
                 player.world.name
             )
-            McpSchema.CallToolResult(
-                listOf(McpSchema.TextContent("Player $playerName position: x=${pos.x}, y=${pos.y}, z=${pos.z}, world=${pos.world}")),
+            CallToolResult(
+                listOf(TextContent("Player $playerName position: x=${pos.x}, y=${pos.y}, z=${pos.z}, world=${pos.world}")),
                 false
             )
         }

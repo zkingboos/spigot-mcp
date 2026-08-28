@@ -1,26 +1,16 @@
 package xyz.joseg.spigotmcp.mcp.tools.clipboard
 
-import io.modelcontextprotocol.spec.McpSchema
-import xyz.joseg.spigotmcp.fawe.FaweAdapter
 import xyz.joseg.spigotmcp.mcp.tools.ToolDefinition
+import xyz.joseg.spigotmcp.mcp.tools.toToolResult
+import xyz.joseg.spigotmcp.mcp.tools.toolResult
+import xyz.joseg.spigotmcp.worldedit.WorldEditService
 
-fun createClearClipboardTool(fawe: FaweAdapter): ToolDefinition {
-    return ToolDefinition(
-        name = "clear_clipboard",
-        description = "Clear the clipboard",
-        inputSchemaJson = """{"type": "object", "properties": {}}"""
-    ) { args ->
-        val result = fawe.clearClipboard()
-        if (result.isSuccess) {
-            McpSchema.CallToolResult(
-                listOf(McpSchema.TextContent("Clipboard cleared")),
-                false
-            )
-        } else {
-            McpSchema.CallToolResult(
-                listOf(McpSchema.TextContent("Failed to clear clipboard: ${result.exceptionOrNull()?.message}")),
-                true
-            )
-        }
+fun createClearClipboardTool(worldEdit: WorldEditService): ToolDefinition = ToolDefinition(
+    name = "clear_clipboard",
+    description = "Clear the clipboard",
+    inputSchemaJson = """{"type": "object", "properties": {}}"""
+) { _ ->
+    toolResult {
+        worldEdit.clearClipboard().toToolResult { "Clipboard cleared" }
     }
 }

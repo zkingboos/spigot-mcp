@@ -3,42 +3,43 @@ package xyz.joseg.spigotmcp
 import org.bukkit.plugin.java.JavaPlugin
 import xyz.joseg.spigotmcp.config.ConfigLoader
 import xyz.joseg.spigotmcp.config.PluginConfig
-import xyz.joseg.spigotmcp.fawe.FaweAdapter
 import xyz.joseg.spigotmcp.mcp.McpServerHost
+import xyz.joseg.spigotmcp.worldedit.MainThreadDispatcher
+import xyz.joseg.spigotmcp.worldedit.WorldEditBackends
+import xyz.joseg.spigotmcp.worldedit.WorldEditService
 
 class SpigotMCPPlugin : JavaPlugin() {
-    
+
     companion object {
         lateinit var instance: SpigotMCPPlugin
             private set
     }
-    
-    private lateinit var config: PluginConfig
-    private var faweAdapter: FaweAdapter? = null
+
+    private lateinit var pluginConfig: PluginConfig
+    private var worldEdit: WorldEditService? = null
     private lateinit var mcpServer: McpServerHost
-    
+
     override fun onEnable() {
         instance = this
         saveDefaultConfig()
-        config = ConfigLoader.load(dataFolder)
-        
-        // Try to initialize FAWE adapter if FAWE is available
-        val fawePlugin = server.pluginManager.getPlugin("FastAsyncWorldEdit")
-        if (fawePlugin != null) {
-            faweAdapter = FaweAdapter(config.fawe)
-            logger.info("FAWE integration enabled")
-        } else {
-            logger.warning("FAWE not found - FAWE tools will not be available")
-        }
-        
-        mcpServer = McpServerHost(config, faweAdapter, logger)
+        pluginConfig = ConfigLoader.load(dataFolder)
+
+        worldEdit = WorldEditBackends.detect(pluginConfig.worldEdit, logger)
+            ?.let { WorldEditService(it, pluginConfig.worldEdit, MainThreadDispatcher(this)) }
+
+        mcpServer = McpServerHost(pluginConfig, worldEdit, logger)
         mcpServer.start()
-        
-        logger.info("SpigotMCP enabled - MCP server started on stdio:${config.mcp.stdioEnabled} http:${config.mcp.httpEnabled}:${config.mcp.port}")
+
+        logger.info(
+            "SpigotMCP enabled - MCP server started on " +
+                "stdio:${pluginConfig.mcp.stdioEnabled} http:${pluginConfig.mcp.httpEnabled}:${pluginConfig.mcp.port}"
+        )
     }
-    
+
     override fun onDisable() {
-        mcpServer.stop()
+        if (::mcpServer.isInitialized) {
+            mcpServer.stop()
+        }
         logger.info("SpigotMCP disabled")
     }
 }

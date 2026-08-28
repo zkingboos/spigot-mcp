@@ -1,6 +1,8 @@
 package xyz.joseg.spigotmcp.mcp.tools.selection
 
-import io.modelcontextprotocol.spec.McpSchema
+import xyz.joseg.spigotmcp.mcp.protocol.CallToolResult
+import xyz.joseg.spigotmcp.mcp.protocol.TextContent
+
 import xyz.joseg.spigotmcp.mcp.tools.ToolDefinition
 import xyz.joseg.spigotmcp.util.Pos
 
@@ -32,8 +34,8 @@ fun createSetSelectionTool(): ToolDefinition {
         }
         
         // Note: Would need integration with WE selection API
-        McpSchema.CallToolResult(
-            listOf(McpSchema.TextContent("Selection set (requires WE player session integration)")),
+        CallToolResult(
+            listOf(TextContent("Selection set (requires WE player session integration)")),
             false
         )
     }

@@ -1,0 +1,10 @@
+name: spigot-mcp
+main: xyz.joseg.spigotmcp.SpigotMCPPlugin
+version: 1.0-SNAPSHOT
+author: joseg
+description: MCP (Model Context Protocol) server exposing WorldEdit/FAWE block editing to AI agents.
+# No api-version on purpose: the plugin is compiled against the 1.8 Bukkit API and must stay
+# loadable on legacy servers, where the key does not exist.
+softdepend:
+  - WorldEdit
+  - FastAsyncWorldEdit
